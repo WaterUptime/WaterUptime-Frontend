@@ -41,6 +41,15 @@ function loadJob(state: ChainState, jobId: number): MaintenanceJob {
   return job;
 }
 
+/**
+ * Fewest audit entries a job in `status` still needs to reach Closed or
+ * Cancelled. Mirrors `entries_to_finish` in the contract (lib.rs).
+ */
+export function entriesToFinish(status: JobStatus): number {
+  if (isTerminal(status)) return 0;
+  return status === "RepairSubmitted" ? 2 : 1;
+}
+
 function record(
   state: ChainState,
   job: MaintenanceJob,
@@ -50,7 +59,10 @@ function record(
   now: number,
 ): ChainState {
   const history = state.history[job.id] ?? [];
-  if (history.length >= MAX_HISTORY_LEN) throw new WorkflowError("HistoryLimitReached");
+  // Keep room for the entries the job still needs to finish, as the contract does.
+  if (history.length + 1 + entriesToFinish(job.status) > MAX_HISTORY_LEN) {
+    throw new WorkflowError("HistoryLimitReached");
+  }
   const entry: AuditEntry = { action, actor, reference, timestamp: now };
   return {
     ...state,
