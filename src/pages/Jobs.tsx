@@ -213,7 +213,7 @@ function JobDetail({ job }: { job: MaintenanceJob }) {
 }
 
 function JobActions({ job, admin }: { job: MaintenanceJob; admin: string }) {
-  const { actor, readOnly } = useStore();
+  const { actor, readOnly, mode } = useStore();
   const { person } = useDerived();
   const switchHint = useSwitchHint();
 
@@ -253,7 +253,9 @@ function JobActions({ job, admin }: { job: MaintenanceJob; admin: string }) {
       <Notice icon="hourglass_top">
         {next.step
           ? `Waiting on ${who?.name ?? "the assigned person"} (${who?.title.toLowerCase() ?? "role"}). ${switchHint}`
-          : "This job is finished. Its history stays on record."}
+          : mode === "demo"
+            ? "This job is finished. Its history stays in the demo data."
+            : "This job is finished. On testnet its history stays readable only while its storage is kept live (about 120 days after the last change unless extended)."}
       </Notice>
     );
   }
@@ -414,7 +416,7 @@ function CancelPanel({ job }: { job: MaintenanceJob }) {
       className="flex flex-col gap-space-sm rounded-lg bg-surface-container-lowest p-space-sm"
     >
       <h3 className="text-label-md uppercase text-error">Cancel job</h3>
-      <p className="text-body-sm text-on-surface-variant">For mistaken or duplicate reports. Cancelling is permanent; the history is kept.</p>
+      <p className="text-body-sm text-on-surface-variant">For mistaken or duplicate reports. Cancelling can't be undone; the history so far stays with the job.</p>
       <Field label="Reason">
         <input required className={inputClass} value={reason} onChange={(e) => setReason(e.target.value)} placeholder="e.g. Duplicate of an existing report" />
       </Field>
