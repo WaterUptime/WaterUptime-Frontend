@@ -23,7 +23,7 @@ const APP = process.env.APP_URL ?? "http://localhost:5173";
 const PREFIX = process.env.KEY_PREFIX ?? "wu";
 const CHROME = process.env.CHROME ?? "/usr/bin/google-chrome";
 const OUT = process.env.OUT_DIR ?? "e2e/output";
-const CONTRACT = process.env.VITE_CONTRACT_ID ?? "CD5V5AJCWEP25CVVFQ3J5E54AFOB6JFYO4MIWBJSIPECMEM3PHZ6TCLX";
+const CONTRACT = process.env.VITE_CONTRACT_ID ?? "CDO5G5UK4YLRCBXWJI7GSJYTPXZSZNCAQ4ILAKZHYUBA64QWWCUTF22Z";
 const RPC = new rpc.Server(process.env.VITE_RPC_URL ?? "https://soroban-testnet.stellar.org");
 
 const secret = (name) => execFileSync("stellar", ["keys", "secret", `${PREFIX}-${name}`], { encoding: "utf8" }).trim();
