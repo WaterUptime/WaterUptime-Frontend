@@ -107,14 +107,45 @@ describe("rules", () => {
     expectError(() => wf.closeJob(s, ADMIN, jobId, 4), "InvalidTransition");
   });
 
-  it("caps audit history", () => {
+  /** Assigned job after `cycles` submit/return loops (2 + 2 * cycles entries). */
+  function reworked(cycles: number) {
     let { state: s, jobId } = wf.reportFault(base(), REPORTER, POINT, h(10), 1);
     s = wf.assignJob(s, ADMIN, jobId, TECH, VERIFIER, 2);
-    for (let i = 0; i < (wf.MAX_HISTORY_LEN - 2) / 2; i++) {
+    for (let i = 0; i < cycles; i++) {
       s = wf.submitRepair(s, TECH, jobId, h(20), 3);
       s = wf.verifyRepair(s, VERIFIER, jobId, h(30), false, 4);
     }
-    expect(s.history[jobId]).toHaveLength(wf.MAX_HISTORY_LEN);
+    return { s, jobId };
+  }
+
+  it("caps audit history but keeps room to finish (same numbers as the contract)", () => {
+    // 23 rework cycles reach 48 entries; the 24th submission is refused.
+    const { s, jobId } = reworked(23);
+    expect(s.history[jobId]).toHaveLength(48);
     expectError(() => wf.submitRepair(s, TECH, jobId, h(20), 5), "HistoryLimitReached");
+    // The coordinator can still cancel.
+    expect(wf.cancelJob(s, ADMIN, jobId, h(40), 5).jobs[jobId]!.status).toBe("Cancelled");
+    // Or reassign once (49), then cancel with the 50th and final entry.
+    const re = wf.assignJob(s, ADMIN, jobId, "GOTHER", VERIFIER, 5);
+    const done = wf.cancelJob(re, ADMIN, jobId, h(40), 6);
+    expect(done.history[jobId]).toHaveLength(wf.MAX_HISTORY_LEN);
+  });
+
+  it("lets every job near the limit finish", () => {
+    for (let cycles = 0; cycles <= 23; cycles++) {
+      const { s, jobId } = reworked(cycles);
+      let submitted: ChainState;
+      try {
+        submitted = wf.submitRepair(s, TECH, jobId, h(20), 5);
+      } catch {
+        expect(wf.cancelJob(s, ADMIN, jobId, h(40), 5).jobs[jobId]!.status).toBe("Cancelled");
+        continue;
+      }
+      const closed = wf.closeJob(wf.verifyRepair(submitted, VERIFIER, jobId, h(30), true, 6), ADMIN, jobId, 7);
+      expect(closed.jobs[jobId]!.status).toBe("Closed");
+      const cancelled = wf.cancelJob(wf.verifyRepair(submitted, VERIFIER, jobId, h(30), false, 6), ADMIN, jobId, h(40), 7);
+      expect(cancelled.jobs[jobId]!.status).toBe("Cancelled");
+      expect(cancelled.history[jobId]!.length).toBeLessThanOrEqual(wf.MAX_HISTORY_LEN);
+    }
   });
 });
