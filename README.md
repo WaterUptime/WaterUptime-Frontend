@@ -103,6 +103,16 @@ e2e/              # testnet wallet walkthrough
 
 When the contract interface changes, update `src/domain/types.ts`, `src/domain/workflow.ts` (and its tests) and `src/domain/errors.ts` together.
 
+## Deployment
+
+When deploying to static hosts, ensure SPA fallback routing is configured so deep links and page refreshes work correctly.
+
+* **Build Output:** The build command (`npm run build`) outputs static files to the `dist/` directory.
+* **Vercel:** A `vercel.json` file is included in the root to rewrite all requests to `/index.html`.
+* **Netlify / Cloudflare Pages:** A `_redirects` file is included in the `public/` folder (which automatically copies to `dist/` during build) to handle route fallbacks.
+* **Environment Variables (Optional):** You can configure `VITE_CONTRACT_ID` and `VITE_RPC_URL` as needed.
+* **⚠️ Warning:** This application is currently configured for testnet use only.
+
 ## License
 
 [MIT](LICENSE)
