@@ -27,7 +27,7 @@ The app always shows which kind of action you are taking:
 
 - **Overview**: counts by status, open jobs with their next step and who owns it, recent audit activity.
 - **Water points**: registry with search and filters, on-chain record and repair history; coordinators can register and deactivate points.
-- **Maintenance jobs**: status tabs, lifecycle stepper, role-aware actions (assign/reassign, submit evidence, close, cancel) and the job's audit trail.
+- **Maintenance jobs**: status tabs, lifecycle stepper, role-aware actions (assign/reassign, submit evidence, close, cancel) and the full audit trail.
 - **Verification**: queue of submitted repairs; the assigned verifier approves or returns the job for rework with a reason.
 - **Report a fault**: for authorised reporters.
 

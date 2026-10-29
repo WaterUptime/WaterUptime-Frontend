@@ -32,8 +32,7 @@ const messages: Record<ContractErrorName, string> = {
   SameTechnicianAndVerifier: "The technician and the verifier must be different people.",
   NotAssignedTechnician: "Only the technician assigned to this job can submit repair evidence.",
   NotAssignedVerifier: "Only the verifier assigned to this job can make this decision.",
-  HistoryLimitReached:
-    "This job has had too many rework rounds to record more. The coordinator can still close or cancel it; then report the fault again as a new job.",
+  HistoryLimitReached: "This job has reached its audit history limit. Cancel it and open a new job.",
 };
 
 export class WorkflowError extends Error {
